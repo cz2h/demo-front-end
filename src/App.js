@@ -1,26 +1,25 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+// import { Router, Route, Switch, Redirect } from "react-router-dom";
+import { actions } from "./redux/actions";
+import { connect } from "react-redux";
 
-function App() {
+import ImageRepo from "./ImageRepo/ImageRepo";
+import LoginPage from "./UserLogin/LoginPage";
+
+const MyApp = (props) => {
+  const pageDisplayed = !props.token ? <LoginPage /> : <ImageRepo />;
+  console.log(props.token);
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <div className="App">{pageDisplayed}</div>
     </div>
   );
-}
+};
+
+const mapState = (state) => {
+  return { token: state.token };
+};
+
+const App = connect(mapState)(MyApp);
 
 export default App;
