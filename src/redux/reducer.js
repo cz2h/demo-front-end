@@ -1,11 +1,16 @@
 import { combineReducers } from "redux";
 import { userActions } from "./actions";
+import { myFuns } from "../Util/AxiosUtil";
+import { act } from "react-dom/test-utils";
+
+const token = localStorage.getItem("token");
 
 const initState = {
-  userName: "",
-  token: "",
-  myImages: {},
+  userName: "test1@t.com",
+  token: token,
+  myImages: [],
   curDisplayed: "",
+  shouldUpadte: false,
 };
 
 function addImage(state, action) {
@@ -19,14 +24,24 @@ function deleteImage(state, action) {
 function login(state, action) {
   state.userName = action.name;
   state.token = action.token;
-  return state;
+  return Object.assign({}, state);
 }
 
 function registration(state, action) {
   // TODO
   state.userName = action.name;
   state.token = action.token;
-  return state;
+  return Object.assign({}, state);
+}
+
+function setMyImages(state, action) {
+  state.myImages = action.myImages;
+  return Object.assign({}, state);
+}
+
+function addImageToMyImages(state, action) {
+  state.myImages.push(action.imageNameAndInfo);
+  return { ...state, myImages: [...state.myImages] };
 }
 
 function reducer(state = initState, action) {
@@ -45,10 +60,14 @@ function reducer(state = initState, action) {
       return registration(state, action);
     case userActions.loginFail:
       console.log("LOGIN_FAILED");
-      return;
+      return initState;
     case userActions.registrationFil:
       console.log("REGISTRATION_FAIL");
-      return;
+      return initState;
+    case userActions.getLastestUserProfile:
+      return setMyImages(state, action);
+    case userActions.addImageToProfile:
+      return addImageToMyImages(state, action);
     default:
       return initState;
   }

@@ -1,3 +1,5 @@
+import { myFuns } from "../Util/AxiosUtil";
+
 const { apiEndPoints } = require("../resourses/endPoints");
 const { default: Axios } = require("axios");
 
@@ -8,24 +10,32 @@ const userActions = {
   registration: "USER_REGISTRATION",
   loginFail: "LOGIN_FAIL",
   registrationFil: "REGISTRATION_FAIL",
+  getFileNames: "GET_FILE_NAMES",
+  getFileNamesFail: "GET_FILE_NAMES_FAIL",
+  getLastestUserProfile: "GET_LATEST_USER_PROFILE",
+  addImageToProfile: "ADD_IMAGE_TO_PROFILE",
 };
 
 const actions = {
-  uploadImage: addImage,
+  uploadImage: uploadImage,
   deleteImage: deleteImage,
   login: login,
   registration: registration,
+  getUserProfile: getProfile,
 };
 
-function success(userName, token) {
-  return { type: userActions.login, name: userName, token: token };
+function success(type, userName, token) {
+  return { type: type, name: userName, token: token };
 }
 
 function failure(type, message) {
   return { type: type, message: message };
 }
 
-function addImage() {}
+function getProfile(res) {
+  // want to get latest user profile
+  return { type: userActions.getLastestUserProfile, myImages: res };
+}
 
 function login(userName, passWord) {
   return (dispatch) => {
@@ -34,10 +44,9 @@ function login(userName, passWord) {
       password: passWord,
     }).then(
       (response) => {
-        console.log(response);
-        const token = response.token;
+        const token = response.data.token;
         localStorage.setItem("token", token);
-        dispatch(success(userName, token));
+        dispatch(success(userActions.login, userName, token));
       },
       (error) => {
         console.error(error);
@@ -54,10 +63,9 @@ function registration(userName, passWord) {
       password: passWord,
     }).then(
       (response) => {
-        console.log(response);
         const token = response.token;
         localStorage.setItem("token", token);
-        dispatch(success(userName, token));
+        dispatch(success(userActions.login, userName, token));
       },
       (error) => {
         console.error(error);
@@ -68,5 +76,25 @@ function registration(userName, passWord) {
 }
 
 function deleteImage() {}
+
+function uploadImage(formData, fileName) {
+  return (dispatch) => {
+    Axios.post(`${apiEndPoints.UPLOAD_IMAGE_REQUEST}`, formData).then(
+      (response) => {
+        dispatch({
+          type: userActions.addImageToProfile,
+          imageNameAndInfo: {
+            fileName: fileName,
+            info: formData.get("isPrivate"),
+          },
+        });
+      },
+      (error) => {
+        console.error(error);
+        dispatch(failure(userActions.registrationFil, error.response));
+      }
+    );
+  };
+}
 
 export { userActions, actions };
